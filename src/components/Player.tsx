@@ -1,5 +1,5 @@
 import { useFrame, useThree } from "@react-three/fiber";
-import React, { useEffect, useRef, useState, type RefObject } from "react";
+import React, { useEffect, useRef, useState, type MouseEvent, type RefObject } from "react";
 import * as THREE from "three";
 import { type PortalPos, type TreePos } from "../types/types";
 
@@ -24,7 +24,7 @@ function Player({ controlsRef, blocks, setBlocks, chunks, setChunks, chunkSize, 
             keys.current[event.key.toLowerCase()] = false;
         }
 
-        const handleClick = (event: MouseEvent) => {
+        const handleClick = (event: globalThis.MouseEvent) => {
             const preview = previewMeshRef.current;
             if (!buildMode || !preview) return;
 
@@ -62,7 +62,7 @@ function Player({ controlsRef, blocks, setBlocks, chunks, setChunks, chunkSize, 
             }
         }
 
-        const handleContext = (event: PointerEvent) => event.preventDefault();
+        const handleContext = (event: globalThis.MouseEvent) => event.preventDefault();
 
         window.addEventListener("keydown", handleDown);
         window.addEventListener("keyup", handleUp);
