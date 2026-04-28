@@ -1,5 +1,5 @@
 import { useFrame, useThree } from "@react-three/fiber";
-import React, { useEffect, useRef, useState, type MouseEvent, type RefObject } from "react";
+import React, { useEffect, useRef, useState, type RefObject } from "react";
 import * as THREE from "three";
 import { type PortalPos, type TreePos } from "../types/types";
 
