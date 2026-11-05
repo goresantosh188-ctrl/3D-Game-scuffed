@@ -7,8 +7,8 @@ Build mode toggle - B \
 Place Block - RMB (Only when build mode is toggled) \
 Destroy Block - LMB (Only when build mode is toggled) \
 Place Portal - P \
-Destroy All Portals - O \ 
-Copy/Save Map Data - 1 \ 
+Destroy All Portals - O \
+Copy/Save Map Data - 1 \
 Paste/Load Map - 2 
 ## Features
 * Chunk generation - Move out of the map and generate a new chunk with trees!
