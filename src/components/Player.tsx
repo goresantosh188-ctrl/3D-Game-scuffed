@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState, type RefObject } from "react";
 import * as THREE from "three";
 import { type PortalPos, type TreePos } from "../types/types";
 
-function Player({ controlsRef, blocks, setBlocks, chunks, setChunks, chunkSize, treePosArrayPerChunk, portalCoords, setPortalCoords, PortalRef }: { controlsRef: RefObject<any>, blocks: [x: number, y: number, z: number][], setBlocks: React.Dispatch<React.SetStateAction<[x: number, y: number, z: number][]>>, chunks: Set<string>, setChunks: React.Dispatch<React.SetStateAction<Set<string>>>, chunkSize: number, treePosArrayPerChunk: Array<Array<TreePos>>, portalCoords: PortalPos, setPortalCoords: React.Dispatch<React.SetStateAction<PortalPos>>, PortalRef: React.RefObject<THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material | THREE.Material[], THREE.Object3DEventMap> | null> }): React.JSX.Element {
+function Player({ controlsRef, blocks, setBlocks, chunks, setChunks, chunkSize, treePosArrayPerChunk, setTreePosArrayPerChunk, portalCoords, setPortalCoords, PortalRef }: { controlsRef: RefObject<any>, blocks: [x: number, y: number, z: number][], setBlocks: React.Dispatch<React.SetStateAction<[x: number, y: number, z: number][]>>, chunks: Set<string>, setChunks: React.Dispatch<React.SetStateAction<Set<string>>>, chunkSize: number, treePosArrayPerChunk: Array<Array<TreePos>>, setTreePosArrayPerChunk: React.Dispatch<React.SetStateAction<Array<Array<TreePos>>>>, portalCoords: PortalPos, setPortalCoords: React.Dispatch<React.SetStateAction<PortalPos>>, PortalRef: React.RefObject<THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material | THREE.Material[], THREE.Object3DEventMap> | null> }): React.JSX.Element {
     const keys = useRef<{ [key: string]: boolean }>({});
     const [buildMode, setBuildMode] = useState<boolean>(false);
     const direction = new THREE.Vector3();
@@ -16,8 +16,33 @@ function Player({ controlsRef, blocks, setBlocks, chunks, setChunks, chunkSize, 
     }, [])
 
     useEffect(() => {
-        const handleDown = (event: KeyboardEvent) => {
+        const handleDown = async (event: KeyboardEvent) => {
             keys.current[event.key.toLowerCase()] = true;
+
+            if (event.key.toLowerCase() === "1") {
+                let stringifiedChunks: string = "{";
+                chunks.forEach(chunk => {
+                    stringifiedChunks += stringifiedChunks === "{" ? `"${chunk}"` : `,"${chunk}"`;
+                });
+                stringifiedChunks += "}";
+                const text: string = `Trees=${JSON.stringify(treePosArrayPerChunk)} \nBlocks=${JSON.stringify(blocks)} \nChunks=${stringifiedChunks} \nPortals=${JSON.stringify(portalCoords)}`;
+                await navigator.clipboard.writeText(text);
+                window.alert(`Following data has been copied successfully: \n\n${text}`);
+            }
+            else if (event.key.toLowerCase() === "2") {
+                window.alert("WARNING: Please enter any code sent by others at your own risk as it may be malicious.")
+                const input = window.prompt("Map data")
+                if (input === null || input === "") {
+                    window.alert("Please enter valid map data");
+                    return;
+                }
+                const inputArray: string[] = input.replaceAll(" \r\n", "=").split("=");
+
+                setChunks(new Set(JSON.parse(inputArray[5].replace("{", "[").replace("}","]"))))
+                setPortalCoords(JSON.parse(inputArray[7]))
+                setTreePosArrayPerChunk(JSON.parse(inputArray[1]));
+                setBlocks(JSON.parse(inputArray[3]))
+            }
         }
 
         const handleUp = (event: KeyboardEvent) => {
@@ -75,7 +100,7 @@ function Player({ controlsRef, blocks, setBlocks, chunks, setChunks, chunkSize, 
             window.removeEventListener("mousedown", handleClick);
             window.removeEventListener("contextmenu", handleContext);
         }
-    }, [buildMode]);
+    }, [buildMode, treePosArrayPerChunk, blocks, chunks, portalCoords]);
 
     // variable definitions for useFrame
     const speed = 5;
@@ -93,11 +118,13 @@ function Player({ controlsRef, blocks, setBlocks, chunks, setChunks, chunkSize, 
     let groundY = 0;
     const worldGround = 0;
 
-    let timeSinceBuildModePress = 0;
-    let timeSincePortalPress = 0;
-    let timeSincePortalTeleport = 0;
+    // key press timings
+    let timeSinceBuildModePress: number, 
+        timeSincePortalPress: number;
+    timeSinceBuildModePress = timeSincePortalPress = 0;
 
     let portals = 0;
+    let timeSincePortalTeleport = 0;
 
     useFrame((state, delta) => {
         controlsRef.current.getDirection(direction);
@@ -140,11 +167,13 @@ function Player({ controlsRef, blocks, setBlocks, chunks, setChunks, chunkSize, 
         const key = `${chunkX},${chunkZ}`;
 
         if (!chunks.has(key)) {
+            console.log("Adding to chunks ", key)
             setChunks(oldChunks => new Set(oldChunks).add(key));
         }
 
         if (PortalRef.current) {
-            PortalRef.current.scale.x = 1 + Math.sin(state.clock.elapsedTime * 3) * 0.1;
+            PortalRef.current.scale.x = 1 + Math.sin(state.clock.elapsedTime * 3) * 0.3;
+            PortalRef.current.rotation.x = Math.cos(state.clock.elapsedTime * 3) * 0.025;
         }
 
         if (keys.current["w"]) {
@@ -442,9 +471,11 @@ function Player({ controlsRef, blocks, setBlocks, chunks, setChunks, chunkSize, 
             setPortalCoords([[Infinity, Infinity, Infinity], [Infinity, Infinity, Infinity]])
         }
 
-        timeSinceBuildModePress += delta;
-        timeSincePortalPress += delta;
-        timeSincePortalTeleport += delta;
+        [timeSinceBuildModePress, 
+         timeSincePortalPress,
+         timeSincePortalTeleport] = [timeSinceBuildModePress, 
+                                     timeSincePortalPress,
+                                     timeSincePortalTeleport].map(pressTime => pressTime + delta);
     });
 
     return (

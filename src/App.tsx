@@ -25,7 +25,7 @@ function App(): React.JSX.Element {
   console.count("APP RENDER");
 
   return (
-    <Scene blocks={blocks} setBlocks={setBlocks} chunks={chunks} setChunks={setChunks} chunkSize={chunkSize} treePosArrayPerChunk={treePosArrayPerChunk} portalCoords={portalCoords} setPortalCoords={setPortalCoords} PortalRef={PortalRef}>
+    <Scene blocks={blocks} setBlocks={setBlocks} chunks={chunks} setChunks={setChunks} chunkSize={chunkSize} treePosArrayPerChunk={treePosArrayPerChunk} setTreePosArrayPerChunk={setTreePosArrayPerChunk} portalCoords={portalCoords} setPortalCoords={setPortalCoords} PortalRef={PortalRef}>
       <Plane blocks={blocks} chunks={chunks} chunkSize={chunkSize} treePosArrayPerChunk={treePosArrayPerChunk} setTreePosArrayPerChunk={setTreePosArrayPerChunk} portalCoords={portalCoords} PortalRef={PortalRef} /> 
     </Scene>
   )
