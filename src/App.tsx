@@ -18,15 +18,16 @@ function App(): React.JSX.Element {
   const worldMinZ = -worldCoords[1] / 2;
   const worldMaxZ = worldCoords[1] / 2;
 
-  const PortalRef = useRef<Mesh<BufferGeometry<NormalBufferAttributes, BufferGeometryEventMap>, Material | Material[], Object3DEventMap> | null>(null);
+  const PortalOneRef = useRef<Mesh<BufferGeometry<NormalBufferAttributes, BufferGeometryEventMap>, Material | Material[], Object3DEventMap> | null>(null);
+  const PortalTwoRef = useRef<Mesh<BufferGeometry<NormalBufferAttributes, BufferGeometryEventMap>, Material | Material[], Object3DEventMap> | null>(null);
 
   console.log(worldCoords, worldMinX, worldMaxX, worldMinZ, worldMaxZ);
   console.log(treePosArrayPerChunk)
   console.count("APP RENDER");
 
   return (
-    <Scene blocks={blocks} setBlocks={setBlocks} chunks={chunks} setChunks={setChunks} chunkSize={chunkSize} treePosArrayPerChunk={treePosArrayPerChunk} setTreePosArrayPerChunk={setTreePosArrayPerChunk} portalCoords={portalCoords} setPortalCoords={setPortalCoords} PortalRef={PortalRef}>
-      <Plane blocks={blocks} chunks={chunks} chunkSize={chunkSize} treePosArrayPerChunk={treePosArrayPerChunk} setTreePosArrayPerChunk={setTreePosArrayPerChunk} portalCoords={portalCoords} PortalRef={PortalRef} /> 
+    <Scene blocks={blocks} setBlocks={setBlocks} chunks={chunks} setChunks={setChunks} chunkSize={chunkSize} treePosArrayPerChunk={treePosArrayPerChunk} setTreePosArrayPerChunk={setTreePosArrayPerChunk} portalCoords={portalCoords} setPortalCoords={setPortalCoords} PortalOneRef={PortalOneRef} PortalTwoRef={PortalTwoRef}>
+      <Plane blocks={blocks} chunks={chunks} chunkSize={chunkSize} treePosArrayPerChunk={treePosArrayPerChunk} setTreePosArrayPerChunk={setTreePosArrayPerChunk} portalCoords={portalCoords} PortalOneRef={PortalOneRef} PortalTwoRef={PortalTwoRef} /> 
     </Scene>
   )
 }

@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState, type RefObject } from "react";
 import * as THREE from "three";
 import { type PortalPos, type TreePos } from "../types/types";
 
-function Player({ controlsRef, blocks, setBlocks, chunks, setChunks, chunkSize, treePosArrayPerChunk, setTreePosArrayPerChunk, portalCoords, setPortalCoords, PortalRef }: { controlsRef: RefObject<any>, blocks: [x: number, y: number, z: number][], setBlocks: React.Dispatch<React.SetStateAction<[x: number, y: number, z: number][]>>, chunks: Set<string>, setChunks: React.Dispatch<React.SetStateAction<Set<string>>>, chunkSize: number, treePosArrayPerChunk: Array<Array<TreePos>>, setTreePosArrayPerChunk: React.Dispatch<React.SetStateAction<Array<Array<TreePos>>>>, portalCoords: PortalPos, setPortalCoords: React.Dispatch<React.SetStateAction<PortalPos>>, PortalRef: React.RefObject<THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material | THREE.Material[], THREE.Object3DEventMap> | null> }): React.JSX.Element {
+function Player({ controlsRef, blocks, setBlocks, chunks, setChunks, chunkSize, treePosArrayPerChunk, setTreePosArrayPerChunk, portalCoords, setPortalCoords, PortalOneRef, PortalTwoRef }: { controlsRef: RefObject<any>, blocks: [x: number, y: number, z: number][], setBlocks: React.Dispatch<React.SetStateAction<[x: number, y: number, z: number][]>>, chunks: Set<string>, setChunks: React.Dispatch<React.SetStateAction<Set<string>>>, chunkSize: number, treePosArrayPerChunk: Array<Array<TreePos>>, setTreePosArrayPerChunk: React.Dispatch<React.SetStateAction<Array<Array<TreePos>>>>, portalCoords: PortalPos, setPortalCoords: React.Dispatch<React.SetStateAction<PortalPos>>, PortalOneRef: React.RefObject<THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material | THREE.Material[], THREE.Object3DEventMap> | null>, PortalTwoRef: React.RefObject<THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material | THREE.Material[], THREE.Object3DEventMap> | null> }): React.JSX.Element {
     const keys = useRef<{ [key: string]: boolean }>({});
     const [buildMode, setBuildMode] = useState<boolean>(false);
     const direction = new THREE.Vector3();
@@ -171,10 +171,16 @@ function Player({ controlsRef, blocks, setBlocks, chunks, setChunks, chunkSize, 
             setChunks(oldChunks => new Set(oldChunks).add(key));
         }
 
-        if (PortalRef.current) {
-            PortalRef.current.scale.x = 1 + Math.sin(state.clock.elapsedTime * 3) * 0.3;
-            PortalRef.current.rotation.x = Math.cos(state.clock.elapsedTime * 3) * 0.025;
+        if (PortalOneRef.current) {
+            PortalOneRef.current.scale.x = 1 + Math.sin(state.clock.elapsedTime * 3) * 0.3;
+            PortalOneRef.current.rotation.x = Math.cos(state.clock.elapsedTime * 3) * 0.08;
         }
+        if (PortalTwoRef.current) {
+            PortalTwoRef.current.scale.x = 1 + Math.cos(state.clock.elapsedTime * 3 * 1.5) * 0.3;
+            PortalTwoRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 3 * 1.5) * 0.08;
+        }
+
+        console.log(PortalOneRef, PortalTwoRef)
 
         if (keys.current["w"]) {
             const newX = state.camera.position.x + moveX;

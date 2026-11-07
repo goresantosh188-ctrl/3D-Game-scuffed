@@ -3,7 +3,7 @@ import { type Vector3DCoordinatesArray } from "../../types/types";
 import PortalObsidian from "./PortalObsidian";
 import PortalPortal from "./PortalPortal";
 
-function Portal({ position, facingX, linkExists, PortalRef }: { position: Vector3DCoordinatesArray, facingX?: boolean, linkExists?: boolean, PortalRef: React.RefObject<Mesh<BufferGeometry<NormalBufferAttributes, BufferGeometryEventMap>, Material | Material[], Object3DEventMap> | null> }): React.JSX.Element {
+function Portal({ position, facingX, linkExists, PortalOneRef, PortalTwoRef }: { position: Vector3DCoordinatesArray, facingX?: boolean, linkExists?: boolean, PortalOneRef?: React.RefObject<Mesh<BufferGeometry<NormalBufferAttributes, BufferGeometryEventMap>, Material | Material[], Object3DEventMap> | null>, PortalTwoRef?: React.RefObject<Mesh<BufferGeometry<NormalBufferAttributes, BufferGeometryEventMap>, Material | Material[], Object3DEventMap> | null> }): React.JSX.Element {
     return(
         <group position={position}>
             <PortalObsidian obsidianOffsetY={2} />
@@ -15,7 +15,8 @@ function Portal({ position, facingX, linkExists, PortalRef }: { position: Vector
                     <PortalObsidian obsidianOffsetZ={1} obsidianOffsetY={1}/>
                     <PortalObsidian obsidianOffsetZ={1} obsidianOffsetY={2}/>
                     <PortalObsidian obsidianOffsetZ={-1} obsidianOffsetY={2}/>
-                    {linkExists ? <PortalPortal PortalRef={PortalRef} /> : <></>}
+                    {linkExists ? (PortalTwoRef ? <PortalPortal PortalTwoRef={PortalTwoRef} /> 
+                                                : <PortalPortal PortalOneRef={PortalOneRef} />) : <></>}
                 </>
             ) : (
                 <>
@@ -25,7 +26,8 @@ function Portal({ position, facingX, linkExists, PortalRef }: { position: Vector
                     <PortalObsidian obsidianOffsetX={1} obsidianOffsetY={1}/>
                     <PortalObsidian obsidianOffsetX={1} obsidianOffsetY={2}/>
                     <PortalObsidian obsidianOffsetX={-1} obsidianOffsetY={2}/>
-                    {linkExists ? <PortalPortal PortalRef={PortalRef} /> : <></>}
+                    {linkExists ? (PortalTwoRef ? <PortalPortal PortalTwoRef={PortalTwoRef} /> 
+                                                : <PortalPortal PortalOneRef={PortalOneRef} />) : <></>}
                 </>
             )}
         </group>

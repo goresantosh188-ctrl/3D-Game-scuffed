@@ -16,7 +16,7 @@ const spawnChunkTreePosArray: Array<TreePos> = [
     {x: 26, y: treeHeight, z: 19},
 ]
 
-function Plane({ blocks, chunks, chunkSize, treePosArrayPerChunk, setTreePosArrayPerChunk, portalCoords, PortalRef }: { blocks: [x: number, y: number, z: number][], chunks: Set<string>, chunkSize: number, treePosArrayPerChunk: Array<Array<TreePos>>, setTreePosArrayPerChunk: React.Dispatch<React.SetStateAction<Array<Array<TreePos>>>>, portalCoords: PortalPos, PortalRef: React.RefObject<Mesh<BufferGeometry<NormalBufferAttributes, BufferGeometryEventMap>, Material | Material[], Object3DEventMap> | null> }): React.JSX.Element {
+function Plane({ blocks, chunks, chunkSize, treePosArrayPerChunk, setTreePosArrayPerChunk, portalCoords, PortalOneRef, PortalTwoRef }: { blocks: [x: number, y: number, z: number][], chunks: Set<string>, chunkSize: number, treePosArrayPerChunk: Array<Array<TreePos>>, setTreePosArrayPerChunk: React.Dispatch<React.SetStateAction<Array<Array<TreePos>>>>, portalCoords: PortalPos, PortalOneRef: React.RefObject<Mesh<BufferGeometry<NormalBufferAttributes, BufferGeometryEventMap>, Material | Material[], Object3DEventMap> | null>, PortalTwoRef: React.RefObject<Mesh<BufferGeometry<NormalBufferAttributes, BufferGeometryEventMap>, Material | Material[], Object3DEventMap> | null> }): React.JSX.Element {
     setTreePosArrayPerChunk(oldTreePosArrayPerChunk => !oldTreePosArrayPerChunk.includes(spawnChunkTreePosArray) ? [...oldTreePosArrayPerChunk, spawnChunkTreePosArray] : oldTreePosArrayPerChunk)
     const doneChunks = useRef<Array<string>>([]);
     
@@ -81,8 +81,8 @@ function Plane({ blocks, chunks, chunkSize, treePosArrayPerChunk, setTreePosArra
                 </mesh> : <></>
             )
         })}
-        <Portal position={portalCoords[0]} facingX linkExists={portalCoords[1][0] !== Infinity} PortalRef={PortalRef} />
-        <Portal position={portalCoords[1]} facingX linkExists={portalCoords[1][0] !== Infinity} PortalRef={PortalRef} />
+        <Portal position={portalCoords[1]} facingX linkExists={portalCoords[1][0] !== Infinity} PortalTwoRef={PortalTwoRef}  />
+        <Portal position={portalCoords[0]} facingX linkExists={portalCoords[1][0] !== Infinity} PortalOneRef={PortalOneRef} />
     </>
     )
 }
