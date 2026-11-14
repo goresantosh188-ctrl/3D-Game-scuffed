@@ -1,9 +1,10 @@
 import { Canvas } from "@react-three/fiber";
-import { PointerLockControls, Sky } from "@react-three/drei";
+import { PointerLockControls } from "@react-three/drei";
 import React, { useRef } from "react";
 import Player from "./Player";
-import { type TreePos, type PortalPos } from "../types/types"
-import type { BufferGeometry, BufferGeometryEventMap, Material, Mesh, NormalBufferAttributes, Object3DEventMap } from "three";
+import DynamicSky from "../Sky/DynamicSky"
+import { type TreePos, type PortalPos } from "../../types/types"
+import { type BufferGeometry, type BufferGeometryEventMap, type Material, type Mesh, type NormalBufferAttributes, type Object3DEventMap } from "three";
 
 let controlsRef: any = null;
 
@@ -11,12 +12,11 @@ function Scene({ children, blocks, setBlocks, chunks, setChunks, chunkSize, tree
     controlsRef = useRef<any>(null);
 
     return (
-        <Canvas>
+        <Canvas shadows="soft">
             <PointerLockControls ref={controlsRef} />
-            <directionalLight position={[0, 100, 100]} intensity={3} />
-            <ambientLight intensity={1} />
             <Player controlsRef={controlsRef} blocks={blocks} setBlocks={setBlocks} chunks={chunks} setChunks={setChunks} chunkSize={chunkSize} treePosArrayPerChunk={treePosArrayPerChunk} setTreePosArrayPerChunk={setTreePosArrayPerChunk} portalCoords={portalCoords} setPortalCoords={setPortalCoords} PortalOneRef={PortalOneRef} PortalTwoRef={PortalTwoRef} />
-            <Sky />
+            <DynamicSky />
+            <ambientLight intensity={0.75} />
             {children}
         </Canvas>
     )

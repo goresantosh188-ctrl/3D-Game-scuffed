@@ -1,7 +1,7 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import React, { useEffect, useRef, useState, type RefObject } from "react";
 import * as THREE from "three";
-import { type PortalPos, type TreePos } from "../types/types";
+import { type PortalPos, type TreePos } from "../../types/types";
 
 function Player({ controlsRef, blocks, setBlocks, chunks, setChunks, chunkSize, treePosArrayPerChunk, setTreePosArrayPerChunk, portalCoords, setPortalCoords, PortalOneRef, PortalTwoRef }: { controlsRef: RefObject<any>, blocks: [x: number, y: number, z: number][], setBlocks: React.Dispatch<React.SetStateAction<[x: number, y: number, z: number][]>>, chunks: Set<string>, setChunks: React.Dispatch<React.SetStateAction<Set<string>>>, chunkSize: number, treePosArrayPerChunk: Array<Array<TreePos>>, setTreePosArrayPerChunk: React.Dispatch<React.SetStateAction<Array<Array<TreePos>>>>, portalCoords: PortalPos, setPortalCoords: React.Dispatch<React.SetStateAction<PortalPos>>, PortalOneRef: React.RefObject<THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material | THREE.Material[], THREE.Object3DEventMap> | null>, PortalTwoRef: React.RefObject<THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material | THREE.Material[], THREE.Object3DEventMap> | null> }): React.JSX.Element {
     const keys = useRef<{ [key: string]: boolean }>({});
@@ -103,7 +103,7 @@ function Player({ controlsRef, blocks, setBlocks, chunks, setChunks, chunkSize, 
     }, [buildMode, treePosArrayPerChunk, blocks, chunks, portalCoords]);
 
     // variable definitions for useFrame
-    const speed = 5;
+    const walkSpeed = useRef(5);
     
     const velocityY = useRef(0);
     const jumpForce = 0.3;
@@ -126,14 +126,16 @@ function Player({ controlsRef, blocks, setBlocks, chunks, setChunks, chunkSize, 
     let portals = 0;
     let timeSincePortalTeleport = 0;
 
+    let fov = 75;
+
     useFrame((state, delta) => {
         controlsRef.current.getDirection(direction);
 
         direction.y = 0;
         direction.normalize();
 
-        const moveX = direction.x * speed * delta;
-        const moveZ = direction.z * speed * delta;
+        const moveX = direction.x * walkSpeed.current * delta;
+        const moveZ = direction.z * walkSpeed.current * delta;
 
         for (const block of blocks) {
             const blockMinX = block[0] - blockSize;
@@ -179,8 +181,6 @@ function Player({ controlsRef, blocks, setBlocks, chunks, setChunks, chunkSize, 
             PortalTwoRef.current.scale.x = 1 + Math.cos(state.clock.elapsedTime * 3 * 1.5) * 0.3;
             PortalTwoRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 3 * 1.5) * 0.08;
         }
-
-        console.log(PortalOneRef, PortalTwoRef)
 
         if (keys.current["w"]) {
             const newX = state.camera.position.x + moveX;
@@ -228,12 +228,14 @@ function Player({ controlsRef, blocks, setBlocks, chunks, setChunks, chunkSize, 
             if ((newX >= portalCoordsOneMinX && newX <= portalCoordsOneMaxX) && newZ >= portalCoords[0][2] + blockOffset && newZ <= portalCoords[0][2] - blockOffset && timeSincePortalTeleport >= 1 &&  portalCoords[0][0] !== Infinity && portalCoords[1][0] !== Infinity) {
                 state.camera.position.x = portalCoordsTwoMinX;
                 state.camera.position.z = portalCoords[1][2];
+                fov = 100;
                 timeSincePortalTeleport = 0;    
                 return;
             }
             if ((newX >= portalCoordsTwoMinX && newX <= portalCoordsTwoMaxX) && newZ >= portalCoords[1][2] + blockOffset && newZ <= portalCoords[1][2] - blockOffset && timeSincePortalTeleport >= 1 &&  portalCoords[0][0] !== Infinity && portalCoords[1][0] !== Infinity) {
                 state.camera.position.x = portalCoordsOneMinX;
                 state.camera.position.z = portalCoords[0][2];
+                fov = 100;
                 timeSincePortalTeleport = 0;    
                 return;
             }
@@ -292,12 +294,14 @@ function Player({ controlsRef, blocks, setBlocks, chunks, setChunks, chunkSize, 
             if ((newX >= portalCoordsOneMinX && newX <= portalCoordsOneMaxX) && newZ >= portalCoords[0][2] + blockOffset && newZ <= portalCoords[0][2] - blockOffset && timeSincePortalTeleport >= 1 &&  portalCoords[0][0] !== Infinity && portalCoords[1][0] !== Infinity) {
                 state.camera.position.x = portalCoordsTwoMinX;
                 state.camera.position.z = portalCoords[1][2];
+                fov = 100;
                 timeSincePortalTeleport = 0;    
                 return;
             }
             if ((newX >= portalCoordsTwoMinX && newX <= portalCoordsTwoMaxX) && newZ >= portalCoords[1][2] + blockOffset && newZ <= portalCoords[1][2] - blockOffset && timeSincePortalTeleport >= 1 &&  portalCoords[0][0] !== Infinity && portalCoords[1][0] !== Infinity) {
                 state.camera.position.x = portalCoordsOneMinX;
                 state.camera.position.z = portalCoords[0][2];
+                fov = 100;
                 timeSincePortalTeleport = 0;    
                 return;
             }
@@ -356,12 +360,14 @@ function Player({ controlsRef, blocks, setBlocks, chunks, setChunks, chunkSize, 
             if ((newX >= portalCoordsOneMinX && newX <= portalCoordsOneMaxX) && newZ >= portalCoords[0][2] + blockOffset && newZ <= portalCoords[0][2] - blockOffset && timeSincePortalTeleport >= 1 &&  portalCoords[0][0] !== Infinity && portalCoords[1][0] !== Infinity) {
                 state.camera.position.x = portalCoordsTwoMinX;
                 state.camera.position.z = portalCoords[1][2];
+                fov = 100;
                 timeSincePortalTeleport = 0;    
                 return;
             }
             if ((newX >= portalCoordsTwoMinX && newX <= portalCoordsTwoMaxX) && newZ >= portalCoords[1][2] + blockOffset && newZ <= portalCoords[1][2] - blockOffset && timeSincePortalTeleport >= 1 &&  portalCoords[0][0] !== Infinity && portalCoords[1][0] !== Infinity) {
                 state.camera.position.x = portalCoordsOneMinX;
                 state.camera.position.z = portalCoords[0][2];
+                fov = 100;
                 timeSincePortalTeleport = 0;    
                 return;
             }
@@ -420,12 +426,14 @@ function Player({ controlsRef, blocks, setBlocks, chunks, setChunks, chunkSize, 
             if ((newX >= portalCoordsOneMinX && newX <= portalCoordsOneMaxX) && newZ >= portalCoords[0][2] + blockOffset && newZ <= portalCoords[0][2] - blockOffset && timeSincePortalTeleport >= 1 &&  portalCoords[0][0] !== Infinity && portalCoords[1][0] !== Infinity) {
                 state.camera.position.x = portalCoordsTwoMinX;
                 state.camera.position.z = portalCoords[1][2];
+                fov = 100;
                 timeSincePortalTeleport = 0;    
                 return;
             }
             if ((newX >= portalCoordsTwoMinX && newX <= portalCoordsTwoMaxX) && newZ >= portalCoords[1][2] + blockOffset && newZ <= portalCoords[1][2] - blockOffset && timeSincePortalTeleport >= 1 &&  portalCoords[0][0] !== Infinity && portalCoords[1][0] !== Infinity) {
                 state.camera.position.x = portalCoordsOneMinX;
                 state.camera.position.z = portalCoords[0][2];
+                fov = 100;
                 timeSincePortalTeleport = 0;    
                 return;
             }
@@ -437,6 +445,14 @@ function Player({ controlsRef, blocks, setBlocks, chunks, setChunks, chunkSize, 
             state.camera.position.x = newX;
             state.camera.position.z = newZ;
         }
+
+        const camera = state.camera as THREE.PerspectiveCamera;
+        if (Math.abs(camera.fov - fov) > 0.05) {
+            camera.fov = THREE.MathUtils.damp(camera.fov, fov, 12, delta);
+            state.camera.updateProjectionMatrix();
+        }
+
+        fov = THREE.MathUtils.damp(fov, 75, 4, delta);
         
         if (keys.current["b"] && timeSinceBuildModePress >= 0.2) {
             setBuildMode(oldBuildMode => !oldBuildMode);
@@ -475,6 +491,22 @@ function Player({ controlsRef, blocks, setBlocks, chunks, setChunks, chunkSize, 
 
         if (keys.current["o"]) {
             setPortalCoords([[Infinity, Infinity, Infinity], [Infinity, Infinity, Infinity]])
+        }
+
+        if (keys.current["shift"]) {
+            walkSpeed.current = 12;
+            fov = 82;
+            if (Math.abs(camera.fov - fov) > 0.05) {
+                camera.fov = THREE.MathUtils.damp(camera.fov, fov, 13, delta);
+            }
+        }
+
+        if (!keys.current["shift"] && walkSpeed.current === 12) {
+            walkSpeed.current = 5;
+            fov = THREE.MathUtils.damp(fov, 75, 15, delta);
+            if (Math.abs(fov - camera.fov) > 0.05) {
+                camera.fov = THREE.MathUtils.damp(camera.fov, fov, 10, delta);
+            }
         }
 
         [timeSinceBuildModePress, 

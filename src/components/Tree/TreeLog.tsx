@@ -1,6 +1,6 @@
 function TreeLog(): React.JSX.Element {
     return (
-        <mesh>
+        <mesh castShadow receiveShadow>
             <boxGeometry args={[1, 6, 1]} />
             <meshLambertMaterial color={"brown"} />
         </mesh>

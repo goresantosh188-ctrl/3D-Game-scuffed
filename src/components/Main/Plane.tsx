@@ -1,8 +1,9 @@
-import Tree from "./Tree/Tree";
-import React, { useEffect, useRef } from "react";
-import { type TreePos, type PortalPos } from "../types/types";
-import Portal  from "./Portal/Portal"
-import type { BufferGeometry, BufferGeometryEventMap, Material, Mesh, NormalBufferAttributes, Object3DEventMap } from "three";
+import Tree from "../Tree/Tree";
+import React, { useEffect, useMemo, useRef } from "react";
+import { type TreePos, type PortalPos } from "../../types/types";
+import Portal  from "../Portal/Portal"
+import { type BufferGeometry, type BufferGeometryEventMap, type Material, type Mesh, type NormalBufferAttributes, type Object3DEventMap } from "three";
+import CustomClouds from "../Sky/Clouds";
 
 const treeHeight = -0.5
 
@@ -53,13 +54,13 @@ function Plane({ blocks, chunks, chunkSize, treePosArrayPerChunk, setTreePosArra
             const [x, z] = key.split(",").map(Number);
 
             return (
-                <mesh key={key} rotation={[-Math.PI / 2, 0, 0]} position={[x * chunkSize + chunkSize / 2, -1, z * chunkSize + chunkSize / 2]}> {/* ground meshes using chunk generation */}
+                <mesh castShadow receiveShadow key={key} rotation={[-Math.PI / 2, 0, 0]} position={[x * chunkSize + chunkSize / 2, -1, z * chunkSize + chunkSize / 2]}> {/* ground meshes using chunk generation */}
                     <planeGeometry args={[chunkSize, chunkSize]} />
                     <meshLambertMaterial color={"#3a5f0b"} />
                 </mesh>
             )
         })}
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[20, -0.999, 25]}> {/* spawnpoint mesh */}
+        <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[20, -0.999, 25]}> {/* spawnpoint mesh */}
             <planeGeometry args={[2.5, 2.5]} />
             <meshStandardMaterial color={"#080808bf"} />
         </mesh>
@@ -75,7 +76,7 @@ function Plane({ blocks, chunks, chunkSize, treePosArrayPerChunk, setTreePosArra
                 blockArray[0] !== portalCoords[0][0] ||
                 blockArray[1] !== portalCoords[0][1] || 
                 blockArray[2] !== portalCoords[0][2] ? 
-                <mesh key={i} position={blockArray}>
+                <mesh castShadow receiveShadow key={i} position={blockArray}>
                     <boxGeometry />
                     <meshLambertMaterial color={"purple"} />
                 </mesh> : <></>
@@ -83,6 +84,7 @@ function Plane({ blocks, chunks, chunkSize, treePosArrayPerChunk, setTreePosArra
         })}
         <Portal position={portalCoords[1]} facingX linkExists={portalCoords[1][0] !== Infinity} PortalTwoRef={PortalTwoRef}  />
         <Portal position={portalCoords[0]} facingX linkExists={portalCoords[1][0] !== Infinity} PortalOneRef={PortalOneRef} />
+        <CustomClouds count={useMemo<number>(() => (Math.random() * (100 - 51) + 50), [])} windSpeed={10} />
     </>
     )
 }

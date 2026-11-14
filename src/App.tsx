@@ -1,5 +1,5 @@
-import Scene from "./components/Scene";
-import Plane from "./components/Plane";
+import Scene from "./components/Main/Scene";
+import Plane from "./components/Main/Plane";
 import { useRef, useState } from "react";
 import { type PortalPos, type TreePos } from "./types/types";
 import type { BufferGeometry, BufferGeometryEventMap, Material, Mesh, NormalBufferAttributes, Object3DEventMap } from "three";
