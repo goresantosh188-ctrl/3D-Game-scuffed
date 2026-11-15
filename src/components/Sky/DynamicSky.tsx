@@ -1,8 +1,8 @@
 import React, { useRef, useLayoutEffect } from "react"
 import type { Vector3DCoordinatesArray } from "../../types/types"
 import { useFrame } from "@react-three/fiber"
-import { Float, Sky, Stars, useHelper } from "@react-three/drei"
-import { DirectionalLightHelper, Color } from "three"
+import { Float, Sky, Stars, /*useHelper*/ } from "@react-three/drei"
+// import { DirectionalLightHelper, Color } from "three"
 
 function DynamicSky(): React.JSX.Element {
     const sunPosition = useRef<Vector3DCoordinatesArray>([0,150,0]);
@@ -37,8 +37,8 @@ function DynamicSky(): React.JSX.Element {
         lightRef.current.target.updateMatrixWorld();
         if (skyRef.current) {
             if (skyRef.current.material.fragmentShader.includes("CustomSunColorAppliedKey")) return
-            const color = new Color("rgb(255, 200, 100)");
-            const vec3String: string = `vec3(${color.r.toFixed(4)}, ${color.g.toFixed(4)}, ${color.b.toFixed(4)})`
+            // const color = new Color("rgb(255, 200, 100)");
+            // const vec3String: string = `vec3(${color.r.toFixed(4)}, ${color.g.toFixed(4)}, ${color.b.toFixed(4)})`
             skyRef.current.material.fragmentShader = skyRef.current.material.fragmentShader.replace('const float sunAngularDiameterCos = 0.999956676946448443553574619906976478926848692873900859324', 'const float sunAngularDiameterCos = 0.999')
             /* skyRef.current.material.fragmentShader = skyRef.current.material.fragmentShader.replace(/gl_FragColor\s*=\s*vec4\s*\(\s*retColor\s*,\s*1\.0\s*\)\s*;/, 
                                                 `
