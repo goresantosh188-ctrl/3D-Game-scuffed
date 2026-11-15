@@ -3,6 +3,7 @@ This is a game I created using Typescript, Vite, React and Three.js (specificall
 ## Controls
 Movement - WASD \
 Jump - Space \
+Sprint - Shift \
 Build mode toggle - B \
 Place Block - RMB (Only when build mode is toggled) \
 Destroy Block - LMB (Only when build mode is toggled) \
