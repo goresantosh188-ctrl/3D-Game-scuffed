@@ -5,8 +5,9 @@ Movement - WASD \
 Jump - Space \
 Sprint - Shift \
 Build mode toggle - B \
-Place Block - RMB (Only when build mode is toggled) \
-Destroy Block - LMB (Only when build mode is toggled) \
+├── Place block - RMB \
+└── Delete mode toggle - N \
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── Delete block - LMB \
 Place Portal - P \
 Destroy All Portals - O \
 Copy/Save Map Data - 1 \
