@@ -18,14 +18,13 @@ function DynamicSky(): React.JSX.Element {
 
     useLayoutEffect(() => {
         const camera = lightRef.current.shadow.camera;
-        camera.left = -120;
-        camera.right = 120;
+        camera.left = -60;
+        camera.right = 60;
         camera.top = 50;
         camera.bottom = -50;
-        camera.near = 1;
-        camera.far = 250;
-        lightRef.current.shadow.bias = -0.000256;
-        lightRef.current.shadow.normalBias = -0.02;
+        camera.near = 100;
+        camera.far = 300;
+        lightRef.current.shadow.normalBias = 0.06;
         lightRef.current.shadow.mapSize.set(2048, 2048);
         if (lightRef.current.shadow.map) {
             lightRef.current.shadow.dispose();
@@ -62,11 +61,10 @@ function DynamicSky(): React.JSX.Element {
         const newSunPosition: Vector3DCoordinatesArray = [-160 * Math.sin((Math.PI / 300) * timeOfDay), 
                                                           -150 * Math.cos((Math.PI / 300) * timeOfDay) + (10 * Math.sin((Math.PI / 300) * timeOfDay) ** 2), 0];
         
-        console.log(sunPosition.current)
         sunPosition.current = newSunPosition;
 
         if (lightRef.current) {
-            const shadowTexelSize = 240 /  lightRef.current.shadow.mapSize.width;
+            const shadowTexelSize = 120 /  lightRef.current.shadow.mapSize.width;
 
             const snappedX = Math.floor(state.camera.position.x / shadowTexelSize) * shadowTexelSize;
             const snappedZ = Math.floor(state.camera.position.z / shadowTexelSize) * shadowTexelSize;
@@ -75,11 +73,11 @@ function DynamicSky(): React.JSX.Element {
             lightRef.current.position.set(sunPosition.current[0], sunPosition.current[1], sunPosition.current[2]);
             lightRef.current.updateMatrixWorld();
             lightRef.current.target.updateMatrixWorld();
+            lightRef.current.visible = sunPosition.current[1] > -5;
         }
         if (skyRef.current) {
             skyRef.current.material.uniforms.sunPosition.value.set(sunPosition.current[0], sunPosition.current[1], sunPosition.current[2]);
             skyRef.current.material.uniforms.rayleigh.value = 1 + 7 * ((Math.tanh((timeOfDay - 104) / 2) - Math.tanh((timeOfDay - 246) / 2)) + (Math.tanh((timeOfDay - 404) / 2) - Math.tanh((timeOfDay - 576) / 2)));
-            console.log(skyRef.current.material.uniforms.rayleigh.value)
         }
         if (starRef.current) {
             starRef.current.position.set(state.camera.position.x, state.camera.position.y, state.camera.position.z)

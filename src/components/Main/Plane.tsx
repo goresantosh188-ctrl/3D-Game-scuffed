@@ -4,9 +4,9 @@ import { type TreePos, type PortalPos } from "../../types/types";
 import Portal  from "../Portal/Portal"
 import { type BufferGeometry, type BufferGeometryEventMap, type Material, type Mesh, type NormalBufferAttributes, type Object3DEventMap } from "three";
 import CustomClouds from "../Sky/Clouds";
+import handleRaycastEvent from "../../utils/HandleRaycast";
 
 const treeHeight = -0.5
-
 const spawnChunkTreePosArray: Array<TreePos> = [
     {x: 20, y: treeHeight, z: 20},
     {x: 15, y: treeHeight, z: 15},
@@ -17,7 +17,7 @@ const spawnChunkTreePosArray: Array<TreePos> = [
     {x: 26, y: treeHeight, z: 19},
 ]
 
-function Plane({ blocks, chunks, chunkSize, treePosArrayPerChunk, setTreePosArrayPerChunk, portalCoords, PortalOneRef, PortalTwoRef }: { blocks: [x: number, y: number, z: number][], chunks: Set<string>, chunkSize: number, treePosArrayPerChunk: Array<Array<TreePos>>, setTreePosArrayPerChunk: React.Dispatch<React.SetStateAction<Array<Array<TreePos>>>>, portalCoords: PortalPos, PortalOneRef: React.RefObject<Mesh<BufferGeometry<NormalBufferAttributes, BufferGeometryEventMap>, Material | Material[], Object3DEventMap> | null>, PortalTwoRef: React.RefObject<Mesh<BufferGeometry<NormalBufferAttributes, BufferGeometryEventMap>, Material | Material[], Object3DEventMap> | null> }): React.JSX.Element {
+function Plane({ blocks, chunks, chunkSize, treePosArrayPerChunk, setTreePosArrayPerChunk, portalCoords, PortalOneRef, PortalTwoRef, deleteMode }: { blocks: [x: number, y: number, z: number][], chunks: Set<string>, chunkSize: number, treePosArrayPerChunk: Array<Array<TreePos>>, setTreePosArrayPerChunk: React.Dispatch<React.SetStateAction<Array<Array<TreePos>>>>, portalCoords: PortalPos, PortalOneRef: React.RefObject<Mesh<BufferGeometry<NormalBufferAttributes, BufferGeometryEventMap>, Material | Material[], Object3DEventMap> | null>, PortalTwoRef: React.RefObject<Mesh<BufferGeometry<NormalBufferAttributes, BufferGeometryEventMap>, Material | Material[], Object3DEventMap> | null>, deleteMode: boolean }): React.JSX.Element {
     setTreePosArrayPerChunk(oldTreePosArrayPerChunk => !oldTreePosArrayPerChunk.includes(spawnChunkTreePosArray) ? [...oldTreePosArrayPerChunk, spawnChunkTreePosArray] : oldTreePosArrayPerChunk)
     const doneChunks = useRef<Array<string>>([]);
     
@@ -49,10 +49,10 @@ function Plane({ blocks, chunks, chunkSize, treePosArrayPerChunk, setTreePosArra
             console.log("New treePosArrayPerChunk ", treePosArrayPerChunk)
         })
     }, [chunks])    
-    return ( <>
+    return ( 
+    <group onPointerMove={(event) => {handleRaycastEvent(event, deleteMode)}}>
         {Array.from(chunks).map(key => {
             const [x, z] = key.split(",").map(Number);
-
             return (
                 <mesh castShadow receiveShadow key={key} rotation={[-Math.PI / 2, 0, 0]} position={[x * chunkSize + chunkSize / 2, -1, z * chunkSize + chunkSize / 2]}> {/* ground meshes using chunk generation */}
                     <planeGeometry args={[chunkSize, chunkSize]} />
@@ -85,7 +85,7 @@ function Plane({ blocks, chunks, chunkSize, treePosArrayPerChunk, setTreePosArra
         <Portal position={portalCoords[1]} facingX linkExists={portalCoords[1][0] !== Infinity} PortalTwoRef={PortalTwoRef}  />
         <Portal position={portalCoords[0]} facingX linkExists={portalCoords[1][0] !== Infinity} PortalOneRef={PortalOneRef} />
         <CustomClouds count={useMemo<number>(() => (Math.random() * (100 - 51) + 50), [])} windSpeed={10} />
-    </>
+    </group>
     )
 }
 

@@ -9,6 +9,7 @@ function App(): React.JSX.Element {
   const [chunks, setChunks] = useState<Set<string>>(new Set(["0,0"]))
   const [treePosArrayPerChunk, setTreePosArrayPerChunk] = useState<Array<Array<TreePos>>>([])
   const [portalCoords, setPortalCoords] = useState<PortalPos>([[Infinity, Infinity, Infinity], [Infinity, Infinity, Infinity]])
+  const [deleteMode, setDeleteMode] = useState<boolean>(false);
 
   const chunkSize = 40;
   const worldCoords = [chunkSize, chunkSize];
@@ -26,8 +27,8 @@ function App(): React.JSX.Element {
   console.count("APP RENDER");
 
   return (
-    <Scene blocks={blocks} setBlocks={setBlocks} chunks={chunks} setChunks={setChunks} chunkSize={chunkSize} treePosArrayPerChunk={treePosArrayPerChunk} setTreePosArrayPerChunk={setTreePosArrayPerChunk} portalCoords={portalCoords} setPortalCoords={setPortalCoords} PortalOneRef={PortalOneRef} PortalTwoRef={PortalTwoRef}>
-      <Plane blocks={blocks} chunks={chunks} chunkSize={chunkSize} treePosArrayPerChunk={treePosArrayPerChunk} setTreePosArrayPerChunk={setTreePosArrayPerChunk} portalCoords={portalCoords} PortalOneRef={PortalOneRef} PortalTwoRef={PortalTwoRef} /> 
+    <Scene blocks={blocks} setBlocks={setBlocks} chunks={chunks} setChunks={setChunks} chunkSize={chunkSize} treePosArrayPerChunk={treePosArrayPerChunk} setTreePosArrayPerChunk={setTreePosArrayPerChunk} portalCoords={portalCoords} setPortalCoords={setPortalCoords} PortalOneRef={PortalOneRef} PortalTwoRef={PortalTwoRef} deleteMode={deleteMode} setDeleteMode={setDeleteMode}>
+      <Plane blocks={blocks} chunks={chunks} chunkSize={chunkSize} treePosArrayPerChunk={treePosArrayPerChunk} setTreePosArrayPerChunk={setTreePosArrayPerChunk} portalCoords={portalCoords} PortalOneRef={PortalOneRef} PortalTwoRef={PortalTwoRef} deleteMode={deleteMode} /> 
     </Scene>
   )
 }

@@ -1,11 +1,11 @@
 function TreeLeaf({ leafAddX = 0, leafAddY = 0, leafAddZ = 0 }: { leafAddX?: number, leafAddY?: number, leafAddZ?: number }): React.JSX.Element {
     return (
         <>
-        <mesh castShadow receiveShadow position={[leafAddX, leafAddY, leafAddZ]}>
+        <mesh castShadow position={[leafAddX, leafAddY, leafAddZ]}>
             <boxGeometry />
             <meshLambertMaterial color={"green"} />
         </mesh>
-        <mesh castShadow receiveShadow position={[leafAddX, leafAddY + 1, leafAddZ]}>
+        <mesh castShadow position={[leafAddX, leafAddY + 1, leafAddZ]}>
             <boxGeometry />
             <meshLambertMaterial color={"green"} />
         </mesh>

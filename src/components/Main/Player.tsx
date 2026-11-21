@@ -2,12 +2,14 @@ import { useFrame, useThree } from "@react-three/fiber";
 import React, { useEffect, useRef, useState, type RefObject } from "react";
 import * as THREE from "three";
 import { type PortalPos, type TreePos } from "../../types/types";
+import { getLastHitValue } from "../../utils/HandleRaycast";
 
-function Player({ controlsRef, blocks, setBlocks, chunks, setChunks, chunkSize, treePosArrayPerChunk, setTreePosArrayPerChunk, portalCoords, setPortalCoords, PortalOneRef, PortalTwoRef }: { controlsRef: RefObject<any>, blocks: [x: number, y: number, z: number][], setBlocks: React.Dispatch<React.SetStateAction<[x: number, y: number, z: number][]>>, chunks: Set<string>, setChunks: React.Dispatch<React.SetStateAction<Set<string>>>, chunkSize: number, treePosArrayPerChunk: Array<Array<TreePos>>, setTreePosArrayPerChunk: React.Dispatch<React.SetStateAction<Array<Array<TreePos>>>>, portalCoords: PortalPos, setPortalCoords: React.Dispatch<React.SetStateAction<PortalPos>>, PortalOneRef: React.RefObject<THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material | THREE.Material[], THREE.Object3DEventMap> | null>, PortalTwoRef: React.RefObject<THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material | THREE.Material[], THREE.Object3DEventMap> | null> }): React.JSX.Element {
+function Player({ controlsRef, blocks, setBlocks, chunks, setChunks, chunkSize, treePosArrayPerChunk, setTreePosArrayPerChunk, portalCoords, setPortalCoords, PortalOneRef, PortalTwoRef, deleteMode, setDeleteMode }: { controlsRef: RefObject<any>, blocks: [x: number, y: number, z: number][], setBlocks: React.Dispatch<React.SetStateAction<[x: number, y: number, z: number][]>>, chunks: Set<string>, setChunks: React.Dispatch<React.SetStateAction<Set<string>>>, chunkSize: number, treePosArrayPerChunk: Array<Array<TreePos>>, setTreePosArrayPerChunk: React.Dispatch<React.SetStateAction<Array<Array<TreePos>>>>, portalCoords: PortalPos, setPortalCoords: React.Dispatch<React.SetStateAction<PortalPos>>, PortalOneRef: React.RefObject<THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material | THREE.Material[], THREE.Object3DEventMap> | null>, PortalTwoRef: React.RefObject<THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material | THREE.Material[], THREE.Object3DEventMap> | null>, deleteMode: boolean, setDeleteMode: React.Dispatch<React.SetStateAction<boolean>> }): React.JSX.Element {
     const keys = useRef<{ [key: string]: boolean }>({});
     const [buildMode, setBuildMode] = useState<boolean>(false);
     const direction = new THREE.Vector3();
     const previewMeshRef = useRef<THREE.Mesh>(null);
+    const [chunkDistance, setChunkDistance] = useState<number>(0);
 
     const { camera } = useThree();
 
@@ -31,17 +33,36 @@ function Player({ controlsRef, blocks, setBlocks, chunks, setChunks, chunkSize, 
             }
             else if (event.key.toLowerCase() === "2") {
                 window.alert("WARNING: Please enter any code sent by others at your own risk as it may be malicious.")
-                const input = window.prompt("Map data")
+                const input = window.prompt("Map data");
                 if (input === null || input === "") {
                     window.alert("Please enter valid map data");
                     return;
                 }
                 const inputArray: string[] = input.replaceAll(" \r\n", "=").split("=");
 
-                setChunks(new Set(JSON.parse(inputArray[5].replace("{", "[").replace("}","]"))))
-                setPortalCoords(JSON.parse(inputArray[7]))
+                setChunks(new Set(JSON.parse(inputArray[5].replace("{", "[").replace("}","]"))));
+                setPortalCoords(JSON.parse(inputArray[7], (_, value) => {
+                    return value === null ? Infinity : value;
+                }));
                 setTreePosArrayPerChunk(JSON.parse(inputArray[1]));
-                setBlocks(JSON.parse(inputArray[3]))
+                setBlocks(JSON.parse(inputArray[3]));
+            }
+            else if (event.key.toLowerCase() === "c") {
+                const input = window.prompt("Enter new chunk distance");
+                if (input === null || input === "") {
+                    window.alert("Please enter valid data.");
+                    return;
+                }
+                const numInput = Number(input);
+                if (numInput < 0) {
+                    window.alert("Chunk distance cannot be negative");
+                    return;
+                }
+                let highChunkDistanceConfirmation = true;
+                if (numInput >= 6) {
+                    highChunkDistanceConfirmation = window.confirm("WARNING: This is a very high chunk distance that could heavily slow your computer. Are you sure?");
+                }
+                if (highChunkDistanceConfirmation) setChunkDistance(numInput);
             }
         }
 
@@ -80,9 +101,9 @@ function Player({ controlsRef, blocks, setBlocks, chunks, setChunks, chunkSize, 
                 );
 
                 console.log(`preview: ${preview.position.x} ${preview.position.y} ${preview.position.z}\nportal: ${portalCoords[0]}\nconditions: ${previewXnotInPortalCoords} ${previewYnotInPortalCoords} ${previewZnotInPortalCoords}`)
-                setBlocks(oldBlocks => previewXnotInPortalCoords || previewYnotInPortalCoords || previewZnotInPortalCoords  ? [...oldBlocks, [preview.position.x, preview.position.y, preview.position.z]] : oldBlocks);
+                setBlocks(oldBlocks => (previewXnotInPortalCoords || previewYnotInPortalCoords || previewZnotInPortalCoords) && !deleteMode  ? [...oldBlocks, [preview.position.x, preview.position.y, preview.position.z]] : oldBlocks);
             }
-            if (event.button === 0) {
+            if (event.button === 0 && deleteMode) {
                 setBlocks(oldBlocks => oldBlocks.filter(block => !(block[0] === preview.position.x && block[1] === preview.position.y && block[2] === preview.position.z)))
             }
         }
@@ -100,7 +121,7 @@ function Player({ controlsRef, blocks, setBlocks, chunks, setChunks, chunkSize, 
             window.removeEventListener("mousedown", handleClick);
             window.removeEventListener("contextmenu", handleContext);
         }
-    }, [buildMode, treePosArrayPerChunk, blocks, chunks, portalCoords]);
+    }, [buildMode, deleteMode, treePosArrayPerChunk, blocks, chunks, portalCoords]);
 
     // variable definitions for useFrame
     const walkSpeed = useRef(5);
@@ -157,20 +178,26 @@ function Player({ controlsRef, blocks, setBlocks, chunks, setChunks, chunkSize, 
             }
         }
 
-        const previewMeshRefX = Math.round(state.camera.position.x + direction.x * placeDistance);
-        const previewMeshRefY = Math.round(state.camera.position.y) + blockOffset;
-        const previewMeshRefZ = Math.round(state.camera.position.z + direction.z * placeDistance);
+        const {x: previewMeshRefX, y: previewMeshRefY, z: previewMeshRefZ} = getLastHitValue();
 
         previewMeshRef.current?.position.set(previewMeshRefX, previewMeshRefY, previewMeshRefZ);
 
         const chunkX = Math.floor(state.camera.position.x / chunkSize);
         const chunkZ = Math.floor(state.camera.position.z / chunkSize);
 
-        const key = `${chunkX},${chunkZ}`;
+        const localChunks: Set<string> = new Set()
+        for (let x = -chunkDistance; x <= chunkDistance; x++) {
+            for (let z = -chunkDistance; z <= chunkDistance; z++) {
+                const key = `${chunkX+x},${chunkZ+z}`;
 
-        if (!chunks.has(key)) {
-            console.log("Adding to chunks ", key)
-            setChunks(oldChunks => new Set(oldChunks).add(key));
+                if (!chunks.has(key)) {
+                    console.log("Adding to chunks ", key)
+                    localChunks.add(key);
+                }
+            }
+        }
+        if (localChunks.size > 0) {
+            setChunks(oldChunks => new Set([...oldChunks, ...localChunks]));
         }
 
         if (PortalOneRef.current) {
@@ -182,7 +209,7 @@ function Player({ controlsRef, blocks, setBlocks, chunks, setChunks, chunkSize, 
             PortalTwoRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 3 * 1.5) * 0.08;
         }
 
-        if (keys.current["w"]) {
+         if (keys.current["w"]) {
             const newX = state.camera.position.x + moveX;
             const newZ = state.camera.position.z + moveZ;
             
@@ -455,8 +482,13 @@ function Player({ controlsRef, blocks, setBlocks, chunks, setChunks, chunkSize, 
         fov = THREE.MathUtils.damp(fov, 75, 4, delta);
         
         if (keys.current["b"] && timeSinceBuildModePress >= 0.2) {
-            setBuildMode(oldBuildMode => !oldBuildMode);
-            timeSinceBuildModePress = 0
+            setBuildMode(oldBuildMode => {setDeleteMode(oldDeleteMode => oldBuildMode && oldDeleteMode ? !oldDeleteMode : oldDeleteMode); return !oldBuildMode});
+            timeSinceBuildModePress = 0;
+        }
+
+        if (keys.current["n"] && buildMode && timeSinceBuildModePress >= 0.2) {
+            setDeleteMode(oldDeleteMode => !oldDeleteMode);
+            timeSinceBuildModePress = 0;
         }
 
         velocityY.current -= delta;
@@ -468,9 +500,11 @@ function Player({ controlsRef, blocks, setBlocks, chunks, setChunks, chunkSize, 
         
         if (keys.current[" "] && state.camera.position.y === groundY) {
             velocityY.current = jumpForce;
+            state.events.update?.();
         }
 
         state.camera.position.y += velocityY.current;
+        state.events.update?.();
 
         if (keys.current["p"] && portals < 2 && timeSincePortalPress >= 0.2) {
             const portalX = Math.round(state.camera.position.x + direction.x * placeDistance);
@@ -519,7 +553,7 @@ function Player({ controlsRef, blocks, setBlocks, chunks, setChunks, chunkSize, 
     return (
         (buildMode ? <mesh ref={previewMeshRef}>
                         <boxGeometry />
-                        <meshStandardMaterial color={"white"} transparent opacity={0.4} />
+                        <meshStandardMaterial color={deleteMode ? "red" : "white"} transparent opacity={0.4} />
                      </mesh> : <>hi</>)
     )
 }
